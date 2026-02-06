@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <i class="fa-solid fa-users-gear text-blue-600"></i> รายชื่อนักเรียนทั้งหมด
+    </h2>
+    <a href="{{ url_for('grade_entry_list') }}" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 shadow-md transition flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square"></i> ไปหน้ากรอกเกรด
+    </a>
+</div>
+
+<div class="bg-white p-5 rounded-lg shadow-md mb-6 border border-gray-100">
+    <form class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">ค้นหาชื่อ</label>
+            <input type="text" name="search" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="พิมพ์ชื่อนักเรียน...">
+        </div>
+        <div class="md:col-span-3">
+            <label class="block text-sm font-medium text-gray-700 mb-1">โรงเรียน</label>
+            <select name="school" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white">
+                <option value="">ทั้งหมด</option>
+                {% for s in schools %}
+                    <option value="{{ s.school }}">{{ s.school }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">เรียงลำดับ</label>
+            <select name="sort" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white">
+                <option value="name">ชื่อ</option>
+                <option value="age">อายุ</option>
+            </select>
+        </div>
+        <div class="md:col-span-1">
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="overflow-hidden bg-white rounded-lg shadow-md border border-gray-200">
+    <table class="min-w-full leading-normal">
+        <thead>
+            <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                <th class="py-3 px-6 text-left font-semibold">รหัสนักเรียน</th>
+                <th class="py-3 px-6 text-left font-semibold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-6 text-left font-semibold">อายุ</th>
+                <th class="py-3 px-6 text-left font-semibold">โรงเรียน</th>
+                <th class="py-3 px-6 text-center font-semibold">จัดการ</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-600 text-sm font-light">
+            {% for s in students %}
+            <tr class="border-b border-gray-200 hover:bg-blue-50 transition duration-150">
+                <td class="py-3 px-6 text-left whitespace-nowrap font-medium text-blue-700">{{ s.id }}</td>
+                <td class="py-3 px-6 text-left">{{ s.prefix }} {{ s.first_name }} {{ s.last_name }}</td>
+                <td class="py-3 px-6 text-left"><span class="bg-gray-200 text-gray-700 py-1 px-2 rounded text-xs">{{ s.age }} ปี</span></td>
+                <td class="py-3 px-6 text-left">{{ s.school }}</td>
+                <td class="py-3 px-6 text-center">
+                    <a href="{{ url_for('student_profile', id=s.id) }}" class="bg-blue-100 text-blue-600 py-1 px-3 rounded-full text-xs font-bold hover:bg-blue-200 transition">
+                        ดูประวัติ
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

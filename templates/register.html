@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>✍️ ลงทะเบียนเรียน</h2>
+    <a href="{{ url_for('student_profile') }}" class="btn btn-secondary">⬅️ กลับหน้าประวัติ</a>
+</div>
+
+<div class="card p-0 overflow-hidden">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-primary">
+            <tr>
+                <th>รหัสวิชา</th>
+                <th>ชื่อวิชา</th>
+                <th>หน่วยกิต</th>
+                <th>ผู้สอน</th>
+                <th>เงื่อนไข (Prereq)</th>
+                <th>ดำเนินการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in subjects %}
+            <tr>
+                <td><strong>{{ s.id }}</strong></td>
+                <td>{{ s.name }} <span class="badge bg-light text-dark border">เทอม {{ s.semester }}</span></td>
+                <td>{{ s.credit }}</td>
+                <td>{{ s.instructor }}</td>
+                <td>
+                    {% if s.prerequisite_id %}
+                        <span class="text-danger">ต้องผ่าน {{ s.prerequisite_id }}</span>
+                    {% else %}
+                        <span class="text-success">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post">
+                        <input type="hidden" name="subject_id" value="{{ s.id }}">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            + ลงทะเบียน
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center p-5">
+                    <h4>🎉 ลงทะเบียนครบทุกวิชาแล้ว หรือไม่มีรายวิชาที่เปิดให้ลง</h4>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
