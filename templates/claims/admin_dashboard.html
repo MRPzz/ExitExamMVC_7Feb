@@ -1,0 +1,135 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="flex-1 overflow-auto bg-gray-50 p-6">
+    <div class="max-w-7xl mx-auto space-y-6 animate-fade-in">
+        <h2 class="text-2xl font-bold text-gray-800">Dashboard เจ้าหน้าที่</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500 card-stat">
+                <p class="text-xs text-gray-500 font-bold">ประชาชนในระบบ</p>
+                <h3 class="text-2xl font-bold">{{ stats.total_citizens }} <span class="text-sm text-gray-400 font-normal">คน</span></h3>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500 card-stat">
+                <p class="text-xs text-gray-500 font-bold">อนุมัติแล้ว</p>
+                <h3 class="text-2xl font-bold text-green-700">{{ stats.approved }} <span class="text-sm text-gray-400 font-normal">ราย</span></h3>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-400 card-stat">
+                <p class="text-xs text-gray-500 font-bold">รอตรวจสอบ</p>
+                <h3 class="text-2xl font-bold text-orange-600">{{ stats.pending }} <span class="text-sm text-gray-400 font-normal">ราย</span></h3>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500 card-stat">
+                <p class="text-xs text-gray-500 font-bold">งบประมาณรวม</p>
+                <h3 class="text-2xl font-bold text-purple-700">{{ "{:,.2f}".format(stats.budget) }}</h3>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center flex-wrap gap-2">
+                <h3 class="font-bold text-gray-700">รายชื่อประชาชนและการยื่นคำขอ</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="ค้นหาชื่อ..." class="px-3 py-1.5 text-sm border rounded focus:outline-none focus:border-blue-500">
+                    <select id="statusFilter" class="px-3 py-1.5 text-sm border rounded focus:outline-none focus:border-blue-500">
+                        <option value="all">สถานะ: ทั้งหมด</option>
+                        <option value="Pending">รอตรวจสอบ</option>
+                        <option value="Approved">อนุมัติแล้ว</option>
+                        <option value="NotRegistered">ยังไม่ลงทะเบียน</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm" id="claimsTable">
+                    <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                        <tr>
+                            <th class="p-3">รหัสคำขอ</th>
+                            <th class="p-3">ชื่อ-นามสกุล</th>
+                            <th class="p-3 text-right">รายได้</th>
+                            <th class="p-3 text-center">วันที่ยื่น</th> <th class="p-3 text-center">วันที่อนุมัติ</th> <th class="p-3 text-center">สถานะ</th>
+                            <th class="p-3 text-right">ยอดอนุมัติ</th>
+                            <th class="p-3 text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for row in claims %}
+                        <tr class="hover:bg-blue-50 border-b border-gray-100 transition">
+                            <td class="p-3 font-mono text-gray-600">{{ row.claim_id if row.claim_id else '-' }}</td>
+                            <td class="p-3 font-medium">{{ row.first_name }} {{ row.last_name }}</td>
+                            <td class="p-3 text-right text-gray-500">{{ "{:,.2f}".format(row.salary) }}</td>
+                            
+                            <td class="p-3 text-center text-gray-600">
+                                {{ row.request_date if row.request_date else '-' }}
+                            </td>
+
+                            <td class="p-3 text-center text-gray-600">
+                                {% if row.status == 'Approved' %}
+                                    <span class="text-green-600 font-medium">{{ row.calc_date }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td class="p-3 text-center status-cell" data-status="{{ 'Approved' if row.status == 'Approved' else ('Pending' if row.status == 'Pending' else 'NotRegistered') }}">
+                                {% if row.status == 'Approved' %}
+                                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">อนุมัติแล้ว</span>
+                                {% elif row.status == 'Pending' %}
+                                    <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded font-bold">รอตรวจสอบ</span>
+                                {% else %}
+                                    <span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded font-bold">ยังไม่ลงทะเบียน</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="p-3 text-right">
+                                {% if row.status == 'Approved' %}
+                                    <span class="font-bold text-blue-700">{{ "{:,.2f}".format(row.amount) }}</span>
+                                {% elif row.status == 'Pending' %}
+                                    <span class="text-gray-400 text-xs italic">รออนุมัติ</span>
+                                {% else %}
+                                    <span class="text-gray-400 text-xs">-</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="p-3 text-center">
+                                {% if row.status == 'Pending' %}
+                                <a href="{{ url_for('claim_approve', claim_id=row.claim_id) }}" 
+                                   onclick="return confirm('ยืนยันการอนุมัติคำขอของ {{ row.first_name }}?')"
+                                   class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded shadow transition">
+                                    <i class="fa-solid fa-check mr-1"></i>อนุมัติ
+                                </a>
+                                {% else %}
+                                <span class="text-gray-300">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Filter Script
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const tableRows = document.querySelectorAll('#claimsTable tbody tr');
+
+    function filterTable() {
+        const searchText = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+
+        tableRows.forEach(row => {
+            const nameText = row.querySelector('td:nth-child(2)').innerText.toLowerCase();
+            const idText = row.querySelector('td:nth-child(1)').innerText.toLowerCase();
+            const statusCell = row.querySelector('.status-cell').getAttribute('data-status');
+            
+            const matchesSearch = nameText.includes(searchText) || idText.includes(searchText);
+            const matchesStatus = statusValue === 'all' || statusCell === statusValue;
+
+            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('keyup', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+</script>
+{% endblock %}

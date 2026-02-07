@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="max-w-3xl mx-auto mt-6 animate-fade-in px-4">
+    
+    {% if latest_claim %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
+        <div class="{{ 'bg-orange-500' if latest_claim.status == 'Pending' else 'bg-green-600' }} text-white p-4 flex justify-between items-center">
+            <span class="font-bold"><i class="fa-solid fa-bell mr-2"></i>สถานะล่าสุด</span>
+            <span class="bg-white/20 text-white text-xs px-2 py-1 rounded font-bold">
+                {{ 'รอการตรวจสอบ' if latest_claim.status == 'Pending' else 'อนุมัติแล้ว' }}
+            </span>
+        </div>
+        <div class="p-8 text-center">
+            {% if latest_claim.status == 'Pending' %}
+                <div class="text-6xl text-orange-400 mb-4"><i class="fa-solid fa-clock"></i></div>
+                <h2 class="text-2xl font-bold text-gray-800">กำลังดำเนินการตรวจสอบ</h2>
+                <p class="text-gray-500 mt-2">กรุณารอเจ้าหน้าที่อนุมัติคำขอล่าสุดของคุณ</p>
+            {% else %}
+                <div class="text-6xl text-green-500 mb-4"><i class="fa-solid fa-circle-check"></i></div>
+                <h2 class="text-2xl font-bold text-gray-800">ได้รับเงินเยียวยาแล้ว</h2>
+                <p class="text-gray-500 mt-2">คุณสามารถยื่นคำขอรอบใหม่ได้ หากเข้าเกณฑ์เงื่อนไข</p>
+                
+                <div class="mt-6">
+                    <a href="{{ url_for('claim_create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 inline-flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> ยื่นคำขอรอบใหม่
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b border-gray-200">
+            <h3 class="font-bold text-gray-700"><i class="fa-solid fa-history mr-2"></i>ประวัติการยื่นคำขอทั้งหมด</h3>
+        </div>
+        <table class="w-full text-left text-sm">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                <tr>
+                    <th class="p-3">วันที่ยื่น</th>
+                    <th class="p-3">รหัสคำขอ</th>
+                    <th class="p-3 text-center">สถานะ</th>
+                    <th class="p-3 text-right">ยอดเงิน</th>
+                    <th class="p-3 text-right">วันที่อนุมัติ</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for row in history %}
+                <tr class="hover:bg-blue-50">
+                    <td class="p-3">{{ row.request_date }}</td>
+                    <td class="p-3 font-mono text-gray-600">{{ row.claim_id }}</td>
+                    <td class="p-3 text-center">
+                        <span class="text-xs px-2 py-1 rounded font-bold {{ 'bg-green-100 text-green-700' if row.status == 'Approved' else 'bg-orange-100 text-orange-600' }}">
+                            {{ 'อนุมัติ' if row.status == 'Approved' else 'รอตรวจ' }}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right font-bold text-blue-700">
+                        {{ "{:,.2f}".format(row.amount) if row.amount else '-' }}
+                    </td>
+                    <td class="p-3 text-right text-gray-500">
+                        {{ row.calc_date if row.status == 'Approved' else '-' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="max-w-lg mx-auto mt-12 text-center animate-fade-in">
+        <div class="bg-white rounded-xl shadow-md p-10 border border-gray-200">
+            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 text-3xl">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">ยังไม่มีประวัติคำขอ</h2>
+            <p class="text-gray-500 mb-8">กดปุ่มด้านล่างเพื่อเริ่มยื่นคำขอครั้งแรก</p>
+            <a href="{{ url_for('claim_create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 inline-flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle"></i> ยื่นคำขอเยียวยาใหม่
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

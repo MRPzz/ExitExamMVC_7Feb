@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6 animate-fade-in w-full">
+    
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Dashboard {{ 'เจ้าหน้าที่' if session['user_role'] == 'staff' else 'ส่วนตัว' }}</h2>
+            <p class="text-gray-500 text-sm">รายการคำขอเยียวยาทั้งหมดในระบบ</p>
+        </div>
+        {% if session['user_role'] == 'citizen' %}
+        <a href="{{ url_for('claim_create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition flex items-center gap-2">
+            <i class="fa-solid fa-plus-circle"></i> ยื่นคำขอใหม่
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                    <tr>
+                        <th class="p-4">รหัสคำขอ</th>
+                        <th class="p-4">ชื่อ-นามสกุล</th>
+                        <th class="p-4">วันที่ยื่น</th>
+                        <th class="p-4 text-center">สถานะ</th>
+                        <th class="p-4 text-right">เงินเยียวยา</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for claim in claims %}
+                    <tr class="hover:bg-blue-50 transition">
+                        <td class="p-4 font-mono text-gray-600">{{ claim.claim_id }}</td>
+                        <td class="p-4 font-medium">{{ claim.first_name }} {{ claim.last_name }}</td>
+                        <td class="p-4 text-gray-500">{{ claim.request_date }}</td>
+                        <td class="p-4 text-center">
+                            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold">
+                                {{ claim.status }}
+                            </span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <span class="font-bold text-blue-700">{{ "{:,.2f}".format(claim.amount) }} ฿</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-gray-400 bg-white">
+                            <i class="fa-solid fa-inbox text-4xl mb-2 opacity-50"></i><br>
+                            ไม่พบข้อมูลคำขอในระบบ
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-md mx-auto mt-10 animate-fade-in px-4">
+    <div class="bg-white rounded-xl shadow-lg border-t-4 border-blue-600">
+        <div class="p-6 border-b border-gray-100">
+            <h2 class="text-lg font-bold text-gray-800">ยื่นคำขอรับเงินเยียวยา</h2>
+            <p class="text-sm text-gray-500">ตรวจสอบข้อมูลรายได้ก่อนยืนยัน</p>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-200">
+                <span class="text-sm text-gray-500">ชื่อ-นามสกุล</span>
+                <span class="font-medium text-gray-800">{{ claimant.first_name }} {{ claimant.last_name }}</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 rounded border border-blue-100">
+                <span class="text-sm text-blue-600">รายได้ต่อเดือน</span>
+                <span class="font-bold text-blue-800 text-lg">{{ "{:,.2f}".format(claimant.salary) }}</span>
+            </div>
+            <form method="POST" class="pt-4 flex gap-3">
+                <a href="{{ url_for('claim_index') }}" class="flex-1 py-2 text-center border border-gray-300 rounded text-gray-600 hover:bg-gray-50 text-sm">ยกเลิก</a>
+                <button type="submit" onclick="return confirm('ยืนยันการส่งข้อมูล?')" class="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-bold shadow text-sm">ยืนยัน</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
